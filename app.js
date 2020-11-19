@@ -6,6 +6,8 @@ const userRoutes = require('./routes/users-routes');
 
 const app = express();
 
+app.use(bodyParser.json());
+
 // Registers the middleware
 app.use( '/api/places', placesRoutes); // => /api/places/...
 // app.use( '/api/user', userRoutes); // => /api/user/...

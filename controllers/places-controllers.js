@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
  
 const HttpError = require('../models/http-error');
 
-const DUMMY_PLACES = [
+let DUMMY_PLACES = [
   {
     id: 'p1',
     title: 'ESB',
@@ -27,14 +27,14 @@ const getPlaceById = (req, res, next) => {
   res.json({ place });
 };
 
-const getPlaceByUserId = (req, res, next) => {
+const getPlacesByUserId = (req, res, next) => {
   const userId = req.params.uid;
-  const place = DUMMY_PLACES.find(p => p.creator === userId);
-  if (!place) {
+  const places = DUMMY_PLACES.filter(p => p.creator === userId);
+  if (!places || places.length === 0)  {
     // Can use either throw or next but must use next() if working with synchrnous functions (ie DB)
-    return next(new HttpError('Could not find a place for the provided UserId', 404));
+    return next(new HttpError('Could not find any places for the provided UserId', 404));
   }
-  res.json({ place });
+  res.json({ places });
 };
 
 const createPlace =  (req, res, next) => {
@@ -51,6 +51,38 @@ const createPlace =  (req, res, next) => {
   res.status(201).json({ place: createdPlace })
 };
 
+const updatePlace =  (req, res, next) => {
+  const { title, description } = req.body;
+  const placeId = req.params.pid;
+  const updatePlace = { ...DUMMY_PLACES.find(place => place.id === placeId) };
+  if (!updatePlace) {
+    throw new HttpError('Could not find a place for the provided Id', 404)
+  }
+  const placeIndex = DUMMY_PLACES.findIndex(place => place.id === placeId);
+
+  updatePlace.title = title;
+  updatePlace.description = description;
+
+  DUMMY_PLACES[placeIndex] = updatePlace;
+  res.status(200).json({ place: updatePlace })
+
+};
+
+const deletePlace =  (req, res, next) => {
+  const placeId = req.params.pid;
+  if (!placeId) {
+    throw new HttpError('Could not find a place for the provided Id', 404)
+  }
+  DUMMY_PLACES = DUMMY_PLACES.filter(place => place.id !== placeId)
+  res.status(200).json({ 
+    message: 'place successfully deleted', 
+    places: DUMMY_PLACES
+  })
+};
+
+
 exports.getPlaceById = getPlaceById;
-exports.getPlaceByUserId = getPlaceByUserId;
+exports.getPlacesByUserId = getPlacesByUserId;
 exports.createPlace = createPlace;
+exports.updatePlace = updatePlace;
+exports.deletePlace = deletePlace;

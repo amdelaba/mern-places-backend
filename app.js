@@ -9,9 +9,8 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// Registers the middleware
 app.use( '/api/places', placesRoutes); // => /api/places/...
-// app.use( '/api/user', userRoutes); 
+app.use( '/api/users', userRoutes); 
 
 app.use((req, res, next) => {
   throw new HttpError('Could not find this route', 404);

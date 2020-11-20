@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const HttpError = require('./models/http-error');
 const placesRoutes = require('./routes/places-routes');
@@ -17,7 +18,6 @@ app.use((req, res, next) => {
 });
 
 
-
 app.use((error, req, res, next ) => {
   if (res.headerSent) {
     return next(error);
@@ -25,6 +25,11 @@ app.use((error, req, res, next ) => {
   res.status(error.code || 500).json({message: error.message || 'An Unknown Error Occurred'});
 });
 
-
-
-app.listen(5000);
+mongoose
+  .connect('mongodb+srv://andres:K6AdCYHlmbtgvaHV@cluster0.l1plq.mongodb.net/places_db?retryWrites=true&w=majority')
+  .then(() =>{
+    app.listen(5000);
+  })
+  .catch(err => {
+    console.log(err);
+  });

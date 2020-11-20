@@ -33,7 +33,6 @@ const signup = async (req, res, next) => {
     return next(new HttpError('Invalid inputs', 422));
   }
   const { name, email, password } = req.body;
-  console.log('password', password);
 
   let existingUser;
   try {

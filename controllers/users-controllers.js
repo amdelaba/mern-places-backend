@@ -32,7 +32,7 @@ const signup = async (req, res, next) => {
     console.log(errors);
     return next(new HttpError('Invalid inputs', 422));
   }
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
   console.log('password', password);
 
   let existingUser;
@@ -51,7 +51,7 @@ const signup = async (req, res, next) => {
     email,
     image: 'https://storage.googleapis.com/stateless-campfire-pictures/2019/05/e4629f8e-defaultuserimage-15579880664l8pc.jpg',
     password,
-    places
+    places: []
   });
 
   try {

@@ -64,7 +64,7 @@ const login = async (req, res, next) => {
   if (!identifiedUser || identifiedUser.password !== password){
     return next(new HttpError( 'Could not identify user', 401));
   }
-  res.status(200).json({ message: 'User Logged In' , identifiedUser });
+  res.status(200).json({ message: 'User Logged In' , user: identifiedUser.toObject({ getters: true }) });
 };
 
 exports.getUsers = getUsers;

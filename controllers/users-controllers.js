@@ -37,7 +37,7 @@ const signup = async (req, res, next) => {
   const createdUser = new User ({
     name, 
     email,
-    image: 'https://storage.googleapis.com/stateless-campfire-pictures/2019/05/e4629f8e-defaultuserimage-15579880664l8pc.jpg',
+    image: req.file.path,
     password,
     places: []
   });

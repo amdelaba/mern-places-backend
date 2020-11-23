@@ -84,23 +84,23 @@ const login = async (req, res, next) => {
   try {
     identifiedUser = await User.findOne({ email: email });
   } catch(err) {
-    return next(new HttpError('Login failed, please try again', 500));
+    return next(new HttpError('Login error: Cannot find user in db', 500));
   }
 
   if (!identifiedUser) {
-    return next(new HttpError( 'Could not identify user', 401));
+    return next(new HttpError('Login error: Cannot identify user', 401));
   }
 
   let isValidPassword = false;
 
   try {
-    isValidPassword = await bcrypt.compare(password, existingUser.password);  // existingUser.password is hashed 
+    isValidPassword = await bcrypt.compare(password, identifiedUser.password);  // existingUser.password is hashed 
   } catch(err){
-    return next(new HttpError('Login failed, please try again', 500));
+    return next(new HttpError('Login failed, bcrypt compare failed', 500));
   }
 
   if (!isValidPassword) {
-    return next(new HttpError('Login failed, please try again', 500));
+    return next(new HttpError('Login failed, invalid password', 500));
   }
 
   let token;

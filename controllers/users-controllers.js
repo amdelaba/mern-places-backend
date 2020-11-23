@@ -1,4 +1,8 @@
-const { validationResult } = require('express-validator')
+const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcrypt');
+
+const jwt = require('jsonwebtoken');
  
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
@@ -34,11 +38,22 @@ const signup = async (req, res, next) => {
     return next(new HttpError('Could not create user. Email already in use', 422));
   }
 
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12)
+  } catch(err) {
+    const error = new HttpError(
+      'Hashing password failed.',
+      500
+    );
+    return next(error);
+  }
+
   const createdUser = new User ({
     name, 
     email,
     image: req.file.path,
-    password,
+    password: hashedPassword,
     places: []
   });
 
@@ -47,8 +62,19 @@ const signup = async (req, res, next) => {
   } catch(err) {
     return next(new HttpError('Something went wrong trying to signup.', 500));
   }
+
+  let token;
+  try {
+    token = await jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      'super_secret_dont_share',
+      { expiresIn: '1h' }   // config options
+    );
+  } catch(error) {
+    return next(new HttpError('Signup error: JWT generation failed', 500));
+  }
   
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  res.status(201).json({ userId: createdUser.id, email: createdUser.email, token });
 };
 
 const login = async (req, res, next) => {
@@ -58,13 +84,37 @@ const login = async (req, res, next) => {
   try {
     identifiedUser = await User.findOne({ email: email });
   } catch(err) {
-    return next(new HttpError('Login failed', 500));
+    return next(new HttpError('Login failed, please try again', 500));
   }
 
-  if (!identifiedUser || identifiedUser.password !== password){
+  if (!identifiedUser) {
     return next(new HttpError( 'Could not identify user', 401));
   }
-  res.status(200).json({ message: 'User Logged In' , user: identifiedUser.toObject({ getters: true }) });
+
+  let isValidPassword = false;
+
+  try {
+    isValidPassword = await bcrypt.compare(password, existingUser.password);  // existingUser.password is hashed 
+  } catch(err){
+    return next(new HttpError('Login failed, please try again', 500));
+  }
+
+  if (!isValidPassword) {
+    return next(new HttpError('Login failed, please try again', 500));
+  }
+
+  let token;
+  try {
+    token = await jwt.sign(
+      { userId: identifiedUser.id, email: identifiedUser.email },
+      'super_secret_dont_share',
+      { expiresIn: '1h' }   // config options
+    );
+  } catch(error) {
+    return next(new HttpError('Login error: JWT generation failed', 500));
+  }
+
+  res.status(201).json({ userId: identifiedUser.id, email: identifiedUser.email, token });
 };
 
 exports.getUsers = getUsers;

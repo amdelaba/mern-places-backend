@@ -109,6 +109,11 @@ const updatePlace = async (req, res, next) => {
     return next (new HttpError('Could not retrieve place from db', 500));
   }
   
+  // userData is set in check-auth middleware
+  if(place.creator.toString() !== req.userData.userId) {
+    return next (new HttpError('You are not allowed to edit place', 401));
+  }
+
   place.title = title;
   place.description = description;
 
@@ -134,8 +139,12 @@ const deletePlace = async (req, res, next) => {
     return next (new HttpError('Could not find place for this id', 404));
   }
 
-  const imagePath = place.image;
+   // userData is set in check-auth middleware
+  if(place.creator.id !== req.userData.userId) {
+  return next (new HttpError('You are not allowed to delete place', 401));
+  }
 
+  const imagePath = place.image;
   try { 
     console.log('place', place);
     const sess = await mongoose.startSession();

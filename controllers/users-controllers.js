@@ -100,7 +100,7 @@ const login = async (req, res, next) => {
   }
 
   if (!isValidPassword) {
-    return next(new HttpError('Login failed, invalid password', 500));
+    return next(new HttpError('Login failed, invalid password', 403));
   }
 
   let token;

@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
     // Headers are NOT case sensitive
     const token = req.headers.authorization.split(' ')[1];  // Authorization: 'Bearer TOKEN'
     if (!token) {
-      return next(new HttpError('Authentication failed', 401));
+      return next(new HttpError('Authentication failed', 403));
     }
     const decodedToken = jwt.verify(token, 'super_secret_dont_share');
     req.userData = {

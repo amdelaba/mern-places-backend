@@ -11,6 +11,7 @@ const getUsers = async (req, res, next) => {
 
   let users;
   try {
+    // user protection to leave out password (we dont want to send that back)
     users = await User.find({}, '-password');
   } catch(err) {
     return next(new HttpError('Something went wrong fetching users from db', 500));

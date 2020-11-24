@@ -49,7 +49,7 @@ const createPlace = async (req, res, next) => {
     return next(new HttpError('Invalid inputs', 422));
   }
 
-  const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
 
   let coordinates;
   try {
@@ -63,13 +63,13 @@ const createPlace = async (req, res, next) => {
     description, 
     location: coordinates, 
     address, 
-    creator,
+    creator: req.userData.userId,  // req.userData.userId is set in check-auth middleware
     image: req.file.path
   });
   
   let user;
   try{
-    user = await User.findById(creator)
+    user = await User.findById(req.userData.userId)
   } catch(err) {
     return next(new HttpError('Could not find user for provided id', 500));
   }

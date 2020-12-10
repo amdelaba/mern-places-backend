@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const HttpError = require('../models/http-error')
 
-const API_KEY ='AIzaSyArBHoucqNVOGYblhYqe4sDSWwiXqKlJg4';
+const API_KEY = process.env.GOOGLE_API_KEY;
 
 // See: https://developers.google.com/maps/documentation/geocoding/start#geocoding-request-and-response-latitudelongitude-lookup
 // for API documentation

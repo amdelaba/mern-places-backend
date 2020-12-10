@@ -68,7 +68,7 @@ const signup = async (req, res, next) => {
   try {
     token = await jwt.sign(
       { userId: createdUser.id, email: createdUser.email },
-      'super_secret_dont_share',
+      process.env.JWT_KEY,
       { expiresIn: '1h' }   // config options
     );
   } catch(error) {
@@ -108,7 +108,7 @@ const login = async (req, res, next) => {
   try {
     token = await jwt.sign(
       { userId: identifiedUser.id, email: identifiedUser.email },
-      'super_secret_dont_share',
+      process.env.JWT_KEY,
       { expiresIn: '1h' }   // config options
     );
   } catch(error) {
